@@ -2,6 +2,7 @@ package org.example.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.orderservice.dto.OrderCreatedEvent;
 import org.example.orderservice.dto.OrderDto;
 import org.example.orderservice.model.Order;
 import org.example.rest.ProductApi;
@@ -27,6 +28,8 @@ public class OrderService {
 
     private final ProductApi productApi;
 
+    private final OrderCreatedEventProducer orderCreatedEventProducer;
+
     public OrderDto createOrder(OrderDto orderDto) {
         Order order = new Order();
         order.setId(ORDER_ID.getAndIncrement());
@@ -43,6 +46,9 @@ public class OrderService {
         order.setProductIds(existingProducts.stream().map(ProductDto::getId).toList());
 
         ORDERS.put(order.getId(), order);
+
+//        order.getProductIds().forEach(orderCreatedEventProducer::produceOrderCreatedEvent);
+        orderCreatedEventProducer.produceOrderCreatedEvent(new OrderCreatedEvent(order.getId(), order.getProductIds()));
 
         return new OrderDto()
                 .setId(order.getId())
