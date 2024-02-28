@@ -28,8 +28,6 @@ public class OrderService {
 
     private final ProductApi productApi;
 
-    private final OrderCreatedEventProducer orderCreatedEventProducer;
-
     public OrderDto createOrder(OrderDto orderDto) {
         Order order = new Order();
         order.setId(ORDER_ID.getAndIncrement());
@@ -46,9 +44,6 @@ public class OrderService {
         order.setProductIds(existingProducts.stream().map(ProductDto::getId).toList());
 
         ORDERS.put(order.getId(), order);
-
-//        order.getProductIds().forEach(orderCreatedEventProducer::produceOrderCreatedEvent);
-        orderCreatedEventProducer.produceOrderCreatedEvent(new OrderCreatedEvent(order.getId(), order.getProductIds()));
 
         return new OrderDto()
                 .setId(order.getId())
